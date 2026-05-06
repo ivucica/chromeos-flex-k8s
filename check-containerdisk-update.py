@@ -12,7 +12,7 @@ MANIFEST_URL = "https://dl.google.com/dl/edgedl/chromeos/recovery/cloudready_rec
 
 def main():
     repo_owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "ivucica")
-    image_registry = os.environ.get("IMAGE_REGISTRY", "ghcr.io").rstrip("/")
+    image_registry = os.environ.get("REGISTRY", "ghcr.io").rstrip("/")
     image_name = os.environ.get("IMAGE_NAME", "chromeos-flex-disk")
     repo = f"{image_registry}/{repo_owner}/{image_name}"
 
