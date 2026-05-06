@@ -1,6 +1,7 @@
 # daily-containerdisk-workflow.yaml
 # -*- mode: yaml -*-
 # vim: set filetype=yaml:
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 
 name: Build ChromeOS Flex ContainerDisk
 
