@@ -20,6 +20,12 @@ def main():
     req = urllib.request.Request(MANIFEST_URL)
     with urllib.request.urlopen(req) as response:
         manifest = json.loads(response.read().decode())
+        # Review comment that can be addressed in the future:
+        #
+        # `manifest[0]` assumes the first entry in Google's recovery manifest is the desired ChromeOS Flex build.
+        # The manifest is a list of many devices/channels and ordering is not guaranteed, so this can select the
+        # wrong image/tag. Filter the manifest for the intended entry (e.g., `name == "ChromeOS Flex"` and
+        # `channel == "STABLE"`, or `hwidmatch` matching REVEN) and fail fast if no unique match is found.
         data = manifest[0]
 
     tag = data["chrome_version"]
