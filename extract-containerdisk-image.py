@@ -37,6 +37,16 @@ def main():
 
     os.remove("download.zip")
     print("disk.img successfully prepared.")
+    # Review comment:
+    #
+    # """
+    # The workflow downloads a large, executable disk image but does not verify integrity (the upstream manifest
+    # includes hashes like `sha1`/`md5`). Consider exporting the checksum from `check-containerdisk-update.py` and
+    # verifying the downloaded ZIP (or extracted `disk.img`) before building/pushing, to prevent corrupt uploads and
+    # improve supply-chain integrity.
+    # """
+    #
+    # This should be addressed in future, when adding provenance, security scan and other information.
 
 if __name__ == "__main__":
     main()
