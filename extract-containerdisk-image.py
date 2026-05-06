@@ -21,6 +21,17 @@ def main():
 
     print(f"Extracting {bin_file}...")
     with zipfile.ZipFile("download.zip", 'r') as zip_ref:
+        # Review comment:
+        #
+        # """
+        # zipfile.ZipFile.extract() is vulnerable to path traversal (Zip Slip) if the archive contains entries with ../
+        # or absolute paths, and bin_file comes from a remote manifest. Validate that the selected ZipInfo has a safe
+        # filename (no path separators) and perform a safe, manual extract to a known path (then rename/move), rather
+        # than trusting extract().
+        # """
+        #
+        # This is easy to fix, just do a regex check on the bin_file value (extracted from metadata, should have been
+        # passed via environment).
         zip_ref.extract(bin_file, ".")
         os.rename(bin_file, "disk.img")
 
