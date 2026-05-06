@@ -7,14 +7,15 @@ import json
 import urllib.request
 import os
 import subprocess
-import sys
 
 MANIFEST_URL = "https://dl.google.com/dl/edgedl/chromeos/recovery/cloudready_recovery.json"
 
 def main():
     repo_owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "ivucica")
-    repo = f"ghcr.io/{repo_owner}/chromeos-flex-disk"
-    
+    image_registry = os.environ.get("IMAGE_REGISTRY", "ghcr.io").rstrip("/")
+    image_name = os.environ.get("IMAGE_NAME", "chromeos-flex-disk")
+    repo = f"{image_registry}/{repo_owner}/{image_name}"
+
     print("Fetching ChromeOS Flex manifest...")
     req = urllib.request.Request(MANIFEST_URL)
     with urllib.request.urlopen(req) as response:
