@@ -1,0 +1,74 @@
+# daily-containerdisk-workflow.yaml
+# -*- mode: yaml -*-
+# vim: set filetype=yaml:
+
+name: Build ChromeOS Flex ContainerDisk
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: chromeos-flex-disk
+
+jobs:
+  check-and-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Inspect Upstream Version
+        id: check
+        run: |
+          chmod +x ./check-containerdisk-update.py
+          ./check-containerdisk-update.py
+
+      - name: Download and Prepare Raw Image
+        if: steps.check.outputs.should_build == 'true'
+        env:
+          ZIP_URL: ${{ steps.check.outputs.zip_url }}
+          BIN_FILE: ${{ steps.check.outputs.bin_file }}
+        run: |
+          chmod +x ./extract-containerdisk-image.py
+          ./extract-containerdisk-image.py
+
+      - name: Generate Dockerfile
+        if: steps.check.outputs.should_build == 'true'
+        run: |
+          cat <<EOF > Dockerfile
+          FROM scratch
+          LABEL org.opencontainers.image.title="${{ steps.check.outputs.name }}"
+          LABEL org.opencontainers.image.version="${{ steps.check.outputs.version }}"
+          LABEL org.opencontainers.image.vendor="${{ steps.check.outputs.manufacturer }}"
+          ADD --chown=107:107 disk.img /disk/disk.img
+          EOF
+
+      - name: Log in to the Container registry
+        if: steps.check.outputs.should_build == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: Build and Push ContainerDisk
+        if: steps.check.outputs.should_build == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.check.outputs.chrome_version }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
