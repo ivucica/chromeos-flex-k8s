@@ -7,7 +7,8 @@ name: Build ChromeOS Flex ContainerDisk
 
 on:
   schedule:
-    - cron: '0 3 * * *'
+    # Currently set up to run once a week to reduce usage.
+    - cron: '0 3 * * 1'
   workflow_dispatch:
 
 env:
